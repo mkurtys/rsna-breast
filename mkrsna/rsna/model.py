@@ -5,7 +5,6 @@ import torch.functional as F
 import torchmetrics
 import pytorch_lightning as pl
 
-
 class RSNAModel(pl.LightningModule):
     def __init__(self, 
                  model_name,
@@ -116,9 +115,13 @@ class RSNAModel(pl.LightningModule):
     
     def training_epoch_end(self, outputs):
         true_positives, false_positives, true_negatives, false_negatives, sup = self.train_stat_scores.compute()
+        precision = true_positives/(true_positives+false_positives)
+        recall = true_positives/(true_positives+false_negatives)
+        f1 = 2*(precision*recall)/(precision+recall)
         to_log = {
-                  'train/precision_epoch': (true_positives/(true_positives+false_negatives)).item(),
-                  'train/recall_epoch': (true_positives/(true_positives+false_negatives)).item(),
+                  'train/precision_epoch': precision.item(),
+                  'train/recall_epoch': recall.item(),
+                  'train/f1_epoch': f1.item(),
                   'train/specificity_epoch': (true_negatives/(true_negatives+false_positives)).item()}
         self.log_dict(to_log) 
         self.train_stat_scores.reset()
@@ -134,3 +137,9 @@ class RSNAModel(pl.LightningModule):
         self.binary_f1.reset()
         self.roc_auc.reset()
         self.valid_stat_scores.reset()
+        
+    # def test_step(self, batch, batch_idx):
+    #    loss, acc = self._shared_eval_step(batch, batch_idx)
+    #    metrics = {"test_acc": acc, "test_loss": loss}
+    #    self.log_dict(metrics)
+    #    return metrics
