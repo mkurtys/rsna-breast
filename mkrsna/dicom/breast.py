@@ -106,7 +106,7 @@ def read_breast_dicom_data_and_roi(filename, pre_resize_for_countours_aspect=Non
 
 
 def read_breast_dicom_roi(filename, resize_longer_axis_to=None, pre_resize_for_countours_aspect=None):
-    data, img_croped, crop_coords = read_breast_dicom_data_and_roi(filename, pre_resize_for_countours_aspect=pre_resize_for_countours_aspect, use_dicomsdl=True)
+    data, img_croped, crop_coords = read_breast_dicom_data_and_roi(filename, pre_resize_for_countours_aspect=pre_resize_for_countours_aspect, use_dicomsdl=False)
     if resize_longer_axis_to:
         img_croped=image_resize(img_croped, height=resize_longer_axis_to)
     return img_croped
