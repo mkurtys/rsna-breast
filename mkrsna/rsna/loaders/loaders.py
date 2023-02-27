@@ -48,8 +48,8 @@ def load_img(img_path, resize_dim=None, resize_aspect_ratio=None, transform=None
     return img
 
 
-def load_dicom(dicom_path, resize_longer_axis_to=None, transform=None):
-    img = read_breast_dicom_roi(dicom_path, resize_longer_axis_to=resize_longer_axis_to)
+def load_dicom(dicom_path, resize_longer_axis_to=None, pre_resize_for_countours_aspect=None, transform=None):
+    img = read_breast_dicom_roi(dicom_path, resize_longer_axis_to=resize_longer_axis_to, pre_resize_for_countours_aspect=pre_resize_for_countours_aspect)
     img = img.astype(np.float32)
     img_max = np.amax(img)
     img_min = np.amin(img)
@@ -68,6 +68,7 @@ class RSNAData(Dataset):
                  resize_dim=None,
                  resize_aspect_ratio=None,
                  resize_longer_axis_to=None,
+                 pre_resize_for_countours_aspect=None,
                  transform=None,
                  is_test=False,
                  has_patient_folder_sturcture=False,
@@ -85,13 +86,14 @@ class RSNAData(Dataset):
         self.has_patient_folder_sturcture=has_patient_folder_sturcture
         self.return_filepath=return_filepath
         self.resize_longer_axis_to = resize_longer_axis_to
+        self.pre_resize_for_countours_aspect = pre_resize_for_countours_aspect
         
     def __getitem__(self, idx):
         row = self.df.loc[idx, :]
 
         img_path = resolve_img_path(self.img_folder, row["patient_id"], row["image_id"], self.extension, self.has_patient_folder_sturcture)
         if self.extension == "dcm" or self.extension == "dicom":
-            img = load_dicom(img_path, self.resize_longer_axis_to, self.transform)
+            img = load_dicom(img_path, self.resize_longer_axis_to, self.pre_resize_for_countours_aspect, self.transform)
         else:
             img = load_img(img_path, self.resize_dim, self.resize_aspect_ratio, self.transform)
         
